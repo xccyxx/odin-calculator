@@ -7,21 +7,36 @@ const operate = (a, operator, b) => add(a, b);
 let a = '';
 let operator = '';
 let b = '';
+let formula;
+let result = 0;
 let displayValue = '';
+let displayedOperator = '';
+let hasNumberA = false;
 
-// const containClass = (targetElement, cls) => {
-//     if (targetElement.classList.contains(cls))
-//     return targetElement.classList.contains(cls);
-// }
+const containClass = (e, className) => {
+    return e.target.classList.contains(className);
+}
 
 let container = document.querySelector(".container"); 
-let displayBox = document.querySelector("#displayBox");
+let displayContent = document.querySelector(".displayContent");
 
 container.addEventListener("click", event => {
-    let target = event.target
-    if (event.target.classList.contains("number-button")) {
-        a += target.dataset.number;
-        console.log(a);
-        displayBox.innerText = a;
-    }  
+    if (containClass(event, "number-button")) {
+        if (!hasNumberA) {
+            a += event.target.dataset.number;
+            displayValue = a;
+        } else {
+            b += event.target.dataset.number;
+            displayValue = `${a} ${displayedOperator} ${b}`;
+        }
+    }
+    if (containClass(event, "arithmetic-button")) {
+        if (a !== '' && b === '') {
+            operator = event.target.dataset.arithmetic;
+            displayedOperator = event.target.innerText;
+            displayValue = `${a} ${displayedOperator} `;
+            hasNumberA = true;
+        }
+    }
+    displayContent.innerText = displayValue;
 })

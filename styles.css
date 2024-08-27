@@ -13,8 +13,8 @@ body {
 }
 
 .container {
-    width: 500px;
-    height: 800px;
+    width: 400px;
+    height: 600px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -28,31 +28,39 @@ body {
 
 .row {
     display: flex;
-    justify-content: space; 
+    justify-content: center; 
     align-items: center;
-    width: 350px;
+    width: 90%;
     gap: 5px;
 }
 
 #displayBox {
-    width: 350px;
-    margin-bottom: 5%;
+    width: 90%;
     height: 100px;
+    margin-bottom: 5%;
     border: solid rgb(46, 46, 46) 2px;
     border-radius: 20px;
     background-color: #ffffffd2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
     overflow: auto;
+    display: flex;
+    align-items: center;
+}
+
+.displayContent {
+    font-size: 40px;
+    margin-left: auto;
+    margin-right: 5%;
 }
 
 .button {
     height: 80px;
-    flex: 1;
+    width: 80px;
     border-radius: 10px;
     font-size: 30px;
+}
+
+.zero-button, .clear-button {
+    width: 165px;
 }
 
 .clear-button {
