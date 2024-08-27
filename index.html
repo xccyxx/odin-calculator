@@ -5,36 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="scripts.js"></script>
+    <script defer src="scripts.js"></script>
 </head>
 <body>
     <div class="container">
+        <div id="displayBox"></div>
         <div class="row">
             <button class="button clear-button">AC</button>
+        </div>
+        <div class="row">
+            <button class="button number-button" data-number="7">7</button>
+            <button class="button number-button" data-number="8">8</button>
+            <button class="button number-button" data-number="9">9</button>
             <button class="button arithmetic-button">÷</button>
         </div>
         <div class="row">
-            <button class="button number-button">7</button>
-            <button class="button number-button">8</button>
-            <button class="button number-button">9</button>
+            <button class="button number-button" data-number="4">4</button>
+            <button class="button number-button" data-number="5">5</button>
+            <button class="button number-button" data-number="6">6</button>
             <button class="button arithmetic-button">×</button>
         </div>
         <div class="row">
-            <button class="button number-button">4</button>
-            <button class="button number-button">5</button>
-            <button class="button number-button">6</button>
+            <button class="button number-button" data-number="1">1</button>
+            <button class="button number-button" data-number="2">2</button>
+            <button class="button number-button" data-number="3">3</button>
             <button class="button arithmetic-button">−</button>
+
         </div>
         <div class="row">
-            <button class="button number-button">1</button>
-            <button class="button number-button">2</button>
-            <button class="button number-button">3</button>
-            <button class="button arithmetic-button">+</button>
-        </div>
-        <div class="row">
-            <button class="button zero-button">0</button>
+            <button class="button number-button"data-number="0">0</button>
             <button class="button period-button">.</button>
             <button class="button operate-button">=</button>
+            <button class="button arithmetic-button">+</button>
         </div>
     </div>
 
