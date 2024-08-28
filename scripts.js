@@ -8,30 +8,30 @@ const operate = (a, operator, b) => {
     if (!Number.isNaN(a) && !Number.isNaN(b)) {
         switch (operator) {
             case "+":
-                solution = add(a, b);
+                result = add(a, b);
                 break;
             case "-":
-                solution = subtract(a, b);
+                result = subtract(a, b);
                 break;
             case "*":
-                solution = multiply(a, b);
+                result = multiply(a, b);
                 break;
             case "/":
-                solution = divide(a, b);
+                result = divide(a, b);
                 break;
         }
     }
-    return Math.round(solution * 1000) / 1000;
+    return Math.round(result * 1000) / 1000;
 };
 
 let a = '';
 let operator = '';
 let b = '';
-let solution;
+let result = 0;
 let displayValue = '';
 let displayedOperator = '';
-let hasNumberA = false;
-let hasNumberB = false;
+let currentInput = '';
+let isResult = false;
 
 const containClass = (e, className) => {
     return e.target.classList.contains(className);
@@ -41,8 +41,9 @@ const cleanUpValues = () => {
     a = '';
     operator = '';
     b = '';
-    hasNumberA = false;
-    hasNumberB = false;
+    result = 0;
+    currentInput = '';
+    displayValue = '';
 }
 
 let container = document.querySelector(".container"); 
@@ -51,17 +52,21 @@ let displayContent = document.querySelector(".displayContent");
 container.addEventListener("click", event => {
     if (containClass(event, "clear-button")) {
         cleanUpValues();
-        displayValue = '';
     }
 
     if (containClass(event, "number-button")) {
-        if (!hasNumberA) {
-            if (solution) {
-                cleanUpValues();
-            }
+        if (isResult === true) {
+            isResult = false;
+            cleanUpValues();
+        }
+        if (currentInput === ''){
+            currentInput = "a";
+        }
+        console.log(currentInput);
+        if (currentInput === '' || currentInput === "a") {
             a += event.target.dataset.number;
             displayValue = a;
-        } else if (!hasNumberB) {
+        } else if (currentInput === "b") {
             b += event.target.dataset.number;
             displayValue = `${a} ${displayedOperator} ${b}`;
         }
@@ -69,25 +74,15 @@ container.addEventListener("click", event => {
 
     if (containClass(event, "arithmetic-button")) {
         operator = event.target.dataset.arithmetic;
-        displayedOperator = event.target.innerText;
-        if (a === solution) {
-            displayValue = `${a} ${displayedOperator} `;
-            hasNumberB = false;
-        }
-        if (a !== '' && b === '') {
-            displayValue = `${a} ${displayedOperator} `;
-            hasNumberA = true;
-        }
+        displayedOperator = event.target.innerText;        
+        displayValue = `${a} ${displayedOperator} `;
+        currentInput = "b";
     }
 
     if (containClass(event, "operate-button")) {
-        solution = operate(a, operator, b);
-        displayValue = solution;
-        cleanUpValues();
-        a = solution;
-        console.log(a);
-        console.log(b);
-        console.log(operator);
+        result = operate(a, operator, b);
+        displayValue = result;
+        isResult = true;
     }
     displayContent.innerText = displayValue;
 })
