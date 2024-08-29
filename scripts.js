@@ -3,9 +3,21 @@ const subtract = (a, b) => a - b;
 const multiply = (a, b) => a * b;
 const divide = (a, b) => a / b;
 const operate = (a, operator, b) => {
-    a = +a;
-    b = +b;
-    if (!Number.isNaN(a) && !Number.isNaN(b)) {
+    // handle a value & Invalid Input
+    a = parseFloat(a);
+    if (Number.isNaN(a)) {
+        return "Invalid Input";
+    }
+    // handle b value & empty b
+    if (b !== '') {
+        b = parseFloat(b);
+    }
+
+    // Handle pressing operate directly right after giving number a
+    if (!Number.isNaN(a) && operator === '' && b === '') {
+        return a;
+    // calculation
+    } else if (!Number.isNaN(a) && !Number.isNaN(b)) {
         switch (operator) {
             case "+":
                 result = add(a, b);
@@ -19,18 +31,21 @@ const operate = (a, operator, b) => {
             case "/":
                 result = divide(a, b);
                 break;
+            default:
+                return "Invalid Operator";
         }
-    }
+    } 
+    
     return Math.round(result * 1000) / 1000;
 };
 
 let a = '';
 let operator = '';
 let b = '';
-let result = 0;
+let result;
 let displayValue = '';
 let displayedOperator = '';
-let currentInput = '';
+let currentInput = "none";
 let isResult = false;
 
 const containClass = (e, className) => {
@@ -41,8 +56,8 @@ const cleanUpValues = () => {
     a = '';
     operator = '';
     b = '';
-    result = 0;
-    currentInput = '';
+    result = undefined;
+    currentInput = 'none';
     displayValue = '';
 }
 
@@ -55,15 +70,14 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "number-button")) {
-        if (isResult === true) {
+        if (isResult) {
             isResult = false;
             cleanUpValues();
         }
-        if (currentInput === ''){
+        if (currentInput === 'none'){
             currentInput = "a";
         }
-        console.log(currentInput);
-        if (currentInput === '' || currentInput === "a") {
+        if (currentInput === 'none' || currentInput === "a") {
             a += event.target.dataset.number;
             displayValue = a;
         } else if (currentInput === "b") {
@@ -73,6 +87,21 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "arithmetic-button")) {
+        if (currentInput === "none") {
+            if (event.target.dataset.arithmetic === "+") {
+                a = '';
+            }
+            if (event.target.dataset.arithmetic === "-") {
+                a += event.target.dataset.arithmetic;
+            }
+            displayValue = a;
+
+        }
+        if (isResult && !Number.isNaN(a)) {
+            a = result;
+            b = '';
+            isResult = false;
+        }
         operator = event.target.dataset.arithmetic;
         displayedOperator = event.target.innerText;        
         displayValue = `${a} ${displayedOperator} `;
@@ -80,6 +109,11 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "operate-button")) {
+        if (isResult) {
+            a = result;
+            isResult = false;
+        }
+
         result = operate(a, operator, b);
         displayValue = result;
         isResult = true;
