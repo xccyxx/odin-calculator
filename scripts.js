@@ -87,25 +87,27 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "arithmetic-button")) {
-        if (currentInput === "none") {
-            if (event.target.dataset.arithmetic === "+") {
-                a = '';
-            }
-            if (event.target.dataset.arithmetic === "-") {
-                a += event.target.dataset.arithmetic;
-            }
+        if (currentInput === "none" && event.target.dataset.arithmetic === "-") {
+            a += event.target.dataset.arithmetic;
             displayValue = a;
+        }
 
+        if (currentInput === "a") {
+            currentInput = "b";
         }
-        if (isResult && !Number.isNaN(a)) {
-            a = result;
-            b = '';
-            isResult = false;
+
+        if (currentInput === "b") {
+            if (isResult || b !== '') {   
+                result = operate(a, operator, b);
+                a = result;
+                b = '';
+                isResult = false;
+            }
+            operator = event.target.dataset.arithmetic;
+            displayedOperator = event.target.innerText;        
+            displayValue = `${a} ${displayedOperator} `;
         }
-        operator = event.target.dataset.arithmetic;
-        displayedOperator = event.target.innerText;        
-        displayValue = `${a} ${displayedOperator} `;
-        currentInput = "b";
+
     }
 
     if (containClass(event, "operate-button")) {
@@ -113,7 +115,6 @@ container.addEventListener("click", event => {
             a = result;
             isResult = false;
         }
-
         result = operate(a, operator, b);
         displayValue = result;
         isResult = true;
