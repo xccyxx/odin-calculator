@@ -18,9 +18,9 @@ const operate = (a, operator, b) => {
         if (b === '') {
             if (operator === '') {
                 return a;
-            // Handle pressing operate right after giving number a and operator
-            } else {
+            } else if (!isOperateSelf) {
                 b = a;
+                isOperateSelf = true;
             }   
         }
         
@@ -56,6 +56,8 @@ let displayValue = '';
 let displayedOperator = '';
 let currentInput = "";
 let isResult = false;
+let isOperateSelf = false;
+
 
 const containClass = (e, className) => {
     return e.target.classList.contains(className);
@@ -69,6 +71,16 @@ const cleanUpValues = () => {
     currentInput = '';
     displayValue = '';
     isResult = false;
+    isOperateSelf = false;
+}
+
+const instantOperate = () => {
+    result = operate(a, operator, b);
+    a = result;
+    if (!isOperateSelf) {
+        b = "";
+    }
+    isResult = true;
 }
 
 let container = document.querySelector(".container"); 
@@ -112,9 +124,7 @@ container.addEventListener("click", event => {
         }
         // Pressing arithmetic button right after a calculation
         if (currentInput === "b" && b !== '') {
-            result = operate(a, operator, b);
-            a = result;
-            b = '';
+            instantOperate();
         }
 
         // the operator is only valid after a valid number a
@@ -126,13 +136,13 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "operate-button")) {
-        if (isResult) {
-            a = result;
-        }
-        result = operate(a, operator, b);
-        displayValue = result;
-        isResult = true;
+        // if (isResult) {
+        //     a = result;
+        // }
+        instantOperate();
         currentInput = '';
+        displayValue = result;
+
     }
     displayContent.innerText = displayValue;
     // console.log("a:", a);
