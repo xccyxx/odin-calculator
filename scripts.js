@@ -13,28 +13,37 @@ const operate = (a, operator, b) => {
         b = parseFloat(b);
     }
 
-    // Handle pressing operate directly right after giving number a
-    if (!Number.isNaN(a) && operator === '' && b === '') {
-        return a;
-    // calculation
-    } else if (!Number.isNaN(a) && !Number.isNaN(b)) {
-        switch (operator) {
-            case "+":
-                result = add(a, b);
-                break;
-            case "-":
-                result = subtract(a, b);
-                break;
-            case "*":
-                result = multiply(a, b);
-                break;
-            case "/":
-                result = divide(a, b);
-                break;
-            default:
-                return "Invalid Operator";
+    if (!Number.isNaN(a) && typeof(a) === "number") {
+        // Handle pressing operate directly right after giving number a
+        if (b === '') {
+            if (operator === '') {
+                return a;
+            // Handle pressing operate right after giving number a and operator
+            } else {
+                b = a;
+            }   
         }
-    } 
+        
+        if (!Number.isNaN(b) && typeof(b) === "number") {
+            // calculation
+            switch (operator) {
+                case "+":
+                    result = add(a, b);
+                    break;
+                case "-":
+                    result = subtract(a, b);
+                    break;
+                case "*":
+                    result = multiply(a, b);
+                    break;
+                case "/":
+                    result = divide(a, b);
+                    break;
+                default:
+                    return "Invalid Operator";
+            }
+        }
+    }
     
     return Math.round(result * 1000) / 1000;
 };
@@ -45,7 +54,7 @@ let b = '';
 let result;
 let displayValue = '';
 let displayedOperator = '';
-let currentInput = "none";
+let currentInput = "";
 let isResult = false;
 
 const containClass = (e, className) => {
@@ -57,8 +66,9 @@ const cleanUpValues = () => {
     operator = '';
     b = '';
     result = undefined;
-    currentInput = 'none';
+    currentInput = '';
     displayValue = '';
+    isResult = false;
 }
 
 let container = document.querySelector(".container"); 
@@ -70,14 +80,13 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "number-button")) {
-        if (isResult) {
-            isResult = false;
-            cleanUpValues();
-        }
-        if (currentInput === 'none'){
+        if (currentInput === ''){
+            if (isResult) {
+                cleanUpValues();
+            }
             currentInput = "a";
         }
-        if (currentInput === 'none' || currentInput === "a") {
+        if (currentInput === '' || currentInput === "a") {
             a += event.target.dataset.number;
             displayValue = a;
         } else if (currentInput === "b") {
@@ -87,37 +96,49 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(event, "arithmetic-button")) {
-        if (currentInput === "none" && event.target.dataset.arithmetic === "-") {
-            a += event.target.dataset.arithmetic;
+        if (currentInput === "" && event.target.dataset.arithmetic === "-" && !isResult) {
+            a = event.target.dataset.arithmetic;
             displayValue = a;
         }
 
+        if (currentInput === "") {
+            if (isResult) {   
+                currentInput = "b";
+            }
+        }
+        
         if (currentInput === "a") {
             currentInput = "b";
         }
+        // Pressing arithmetic button right after a calculation
+        if (currentInput === "b" && b !== '') {
+            result = operate(a, operator, b);
+            a = result;
+            b = '';
+        }
 
-        if (currentInput === "b") {
-            if (isResult || b !== '') {   
-                result = operate(a, operator, b);
-                a = result;
-                b = '';
-                isResult = false;
-            }
+        // the operator is only valid after a valid number a
+        if (a !== '' && a !== '-') {
             operator = event.target.dataset.arithmetic;
             displayedOperator = event.target.innerText;        
             displayValue = `${a} ${displayedOperator} `;
         }
-
     }
 
     if (containClass(event, "operate-button")) {
         if (isResult) {
             a = result;
-            isResult = false;
         }
         result = operate(a, operator, b);
         displayValue = result;
         isResult = true;
+        currentInput = '';
     }
     displayContent.innerText = displayValue;
+    // console.log("a:", a);
+    // console.log("operator: ", operator);
+    console.log("b: ", b);
+    // console.log("result: ", result);
+    // console.log("phrase: ", currentInput);
+    // console.log("isResult? ", isResult);
 })
