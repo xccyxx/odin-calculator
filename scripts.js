@@ -39,8 +39,8 @@ let currentInput = "a";
 let isResult = false;
 
 
-const containClass = (e, className) => {
-    return e.target.classList.contains(className);
+const containClass = (targetButton, className) => {
+    return targetButton.classList.contains(className);
 }
 
 const cleanUpValues = () => {
@@ -57,67 +57,74 @@ let container = document.querySelector(".container");
 let displayContent = document.querySelector(".displayContent");
 
 container.addEventListener("click", event => {
-    if (containClass(event, "clear-button")) {
+    let targetButton = event.target
+    
+    if (containClass(targetButton, "clear-button")) {
         cleanUpValues();
     }
 
-    if (containClass(event, "number-button")) {
+    if (containClass(targetButton, "number-button")) {
         if (currentInput === "b" && isResult) {
             cleanUpValues();
             currentInput = "a";
         }
 
         if (currentInput === "a") {
-            a += event.target.dataset.number;
+            a += targetButton.dataset.number;
             displayValue = a;
         } else {
-            b += event.target.dataset.number;
+            b += targetButton.dataset.number;
             displayValue = `${a} ${displayedOperator} ${b}`;
         }
     }
 
-    if (containClass(event, "arithmetic-button")) {
-
+    if (containClass(targetButton, "arithmetic-button")) {
         if (currentInput === "a" && !isResult && (a === "" || a === "-")) {
-            if (event.target.dataset.arithmetic === "+") {
+            if (targetButton.dataset.arithmetic === "+") {
                 a = "";
             }
-            if (event.target.dataset.arithmetic === "-") {
-                a = event.target.dataset.arithmetic;
+            if (targetButton.dataset.arithmetic === "-") {
+                a = targetButton.dataset.arithmetic;
             }
             displayValue = a;
         } else if (currentInput === "a") {
             currentInput = "b";
         }
 
-
         // Pressing arithmetic button right after a calculation
         if (currentInput === "b" && b !== '') {
             a = operate(a, operator, b);
             b = "";
+            isResult = false;
         }
 
         // the operator is only valid after a valid number a
         if (a !== '' && a !== '-') {
-            operator = event.target.dataset.arithmetic;
-            displayedOperator = event.target.innerText;        
+            operator = targetButton.dataset.arithmetic;
+            displayedOperator = targetButton.innerText;        
             displayValue = `${a} ${displayedOperator} `;
         }
     }
 
-    if (containClass(event, "operate-button")) {
-        if (isResult) {
-            a = result;
+    if (containClass(targetButton, "operate-button")) {
+        // handle no operator and no b
+        if (operator === "" && b === "") {
+            result = a;
+        } else {
+            // handle no b only, always repeat the calculation using the initial value of a
+            if (b === "") {
+                b = a;
+                }
+            // instant calculation for multiple clicks
+            if (isResult) {
+                a = result;
+            } else {
+                // the state of current displaying value should be the result only
+                isResult = true;
+            } 
             result = operate(a, operator, b);
-        }
-        if (!isResult) {
-            result = operate(a, operator, b);
-            isResult = true;
         }
         displayValue = result;
-
     }
     displayContent.innerText = displayValue;
-    console.log(currentInput);
-
 })
