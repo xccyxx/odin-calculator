@@ -5,39 +5,33 @@ const divide = (a, b) => a / b;
 const operate = (a, operator, b) => {
     a = parseFloat(a);
     b = parseFloat(b);
+    let calculatedResult;
 
-    if (!Number.isNaN(a) && typeof(a) === "number" && !Number.isNaN(b) && typeof(b) === "number") {
-        // calculation
-        switch (operator) {
-            case "+":
-                result = add(a, b);
-                break;
-            case "-":
-                result = subtract(a, b);
-                break;
-            case "*":
-                result = multiply(a, b);
-                break;
-            case "/":
-                result = divide(a, b);
-                break;
-            default:
-                return "Invalid Operator";
-        }
+    if (Number.isNaN(a) || Number.isNaN(b)) {
+        return "Invalid Input";
     }
-    
-    return Math.round(result * 1000) / 1000;
+
+    // calculation
+    switch (operator) {
+        case "+":
+            calculatedResult = add(a, b);
+            break;
+        case "-":
+            calculatedResult = subtract(a, b);
+            break;
+        case "*":
+            calculatedResult = multiply(a, b);
+            break;
+        case "/":
+            if (b === 0) {
+                return "Invalid Input";
+            }
+            calculatedResult = divide(a, b);
+            break;
+    }
+
+    return Math.round(calculatedResult * 1000) / 1000;
 };
-
-let a = '';
-let operator = '';
-let b = '';
-let result;
-let displayValue = '';
-let displayedOperator = '';
-let currentInput = "a";
-let isResult = false;
-
 
 const containClass = (targetButton, className) => {
     return targetButton.classList.contains(className);
@@ -51,10 +45,30 @@ const cleanUpValues = () => {
     currentInput = 'a';
     displayValue = '';
     isResult = false;
+    decimalButton.disabled = false;
 }
+
+const displayResult = (currentInput) => {
+    if (currentInput === "a") {
+        return a;
+    }
+    if (currentInput === "b") {
+        return `${a} ${displayedOperator} ${b}`;
+    }
+}
+
+let a = '';
+let operator = '';
+let b = '';
+let result;
+let displayValue = '';
+let displayedOperator = '';
+let currentInput = "a";
+let isResult = false;
 
 let container = document.querySelector(".container"); 
 let displayContent = document.querySelector(".displayContent");
+let decimalButton = document.querySelector(".decimal-button");
 
 container.addEventListener("click", event => {
     let targetButton = event.target
@@ -63,32 +77,59 @@ container.addEventListener("click", event => {
         cleanUpValues();
     }
 
-    if (containClass(targetButton, "number-button")) {
+    if (containClass(targetButton, "backspace-button")) {
+        if (a !== "") {
+            a.slice(0, -1);
+
+        }
+    }
+
+    if (containClass(targetButton, "number-button") || containClass(targetButton, "decimal-button")) {
         if (currentInput === "b" && isResult) {
             cleanUpValues();
             currentInput = "a";
         }
 
         if (currentInput === "a") {
+            if (containClass(targetButton, "decimal-button") && a === "") {
+                a = "0";
+            }
             a += targetButton.dataset.number;
-            displayValue = a;
+            displayValue = displayResult("a");
+            if (a.includes(".")) {
+                decimalButton.disabled = true;
+            }
         } else {
+            if (containClass(targetButton, "decimal-button") && b === "") {
+                b = "0";
+            }
             b += targetButton.dataset.number;
-            displayValue = `${a} ${displayedOperator} ${b}`;
+            displayValue = displayResult("b");
+            if (b.includes(".")) {
+                decimalButton.disabled = true;
+            }
         }
     }
+    
 
     if (containClass(targetButton, "arithmetic-button")) {
-        if (currentInput === "a" && !isResult && (a === "" || a === "-")) {
-            if (targetButton.dataset.arithmetic === "+") {
-                a = "";
+        // unlock the decimal button at first
+        decimalButton.disabled = false;
+
+
+        if (currentInput === "a") {
+            // handle positive sign or negative sign for number a
+            if (!isResult && (a === "" || a === "-")) {
+                if (targetButton.dataset.arithmetic === "+") {
+                    a = "";
+                }
+                if (targetButton.dataset.arithmetic === "-") {
+                    a = "-";
+                }
+                displayValue = displayResult("a");
+            } else {
+                currentInput = "b";
             }
-            if (targetButton.dataset.arithmetic === "-") {
-                a = targetButton.dataset.arithmetic;
-            }
-            displayValue = a;
-        } else if (currentInput === "a") {
-            currentInput = "b";
         }
 
         // Pressing arithmetic button right after a calculation
@@ -102,11 +143,14 @@ container.addEventListener("click", event => {
         if (a !== '' && a !== '-') {
             operator = targetButton.dataset.arithmetic;
             displayedOperator = targetButton.innerText;        
-            displayValue = `${a} ${displayedOperator} `;
+            displayValue = displayResult("b");
         }
     }
 
     if (containClass(targetButton, "operate-button")) {
+        // unlock the decimal button at first
+        decimalButton.disabled = false;
+
         // handle no operator and no b
         if (operator === "" && b === "") {
             result = a;
@@ -127,4 +171,8 @@ container.addEventListener("click", event => {
         displayValue = result;
     }
     displayContent.innerText = displayValue;
+    console.log(a);
+    console.log(operator);
+    console.log(b);
+    console.log(displayValue);
 })
