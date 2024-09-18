@@ -48,12 +48,40 @@ const cleanUpValues = () => {
     decimalButton.disabled = false;
 }
 
-const displayResult = (currentInput) => {
-    if (currentInput === "a") {
+const displayResult = (inputContext) => {
+    if (inputContext === "a") {
         return a;
     }
-    if (currentInput === "b") {
+    if (inputContext === "b") {
         return `${a} ${displayedOperator} ${b}`;
+    }
+}
+
+const toggleDecimalButton = (str) => {
+    if (str.includes(".")) {
+        decimalButton.disabled = true;
+    } else {
+        decimalButton.disabled = false;
+    }
+}
+
+const undo = (inputContext) => {
+    if (inputContext === "a") {
+        a = a.slice(0, -1);
+        displayValue = displayResult("a");
+        toggleDecimalButton(a);
+    }
+    if (inputContext === "b") {
+        if (b == "") {
+            operator = "";
+            currentInput = "a";
+            displayValue = displayResult("a");
+            toggleDecimalButton(a);
+        } else {
+            b = b.slice(0, -1);
+            displayValue = displayResult("b");
+            toggleDecimalButton(b);
+        }
     }
 }
 
@@ -78,10 +106,7 @@ container.addEventListener("click", event => {
     }
 
     if (containClass(targetButton, "backspace-button")) {
-        if (a !== "") {
-            a.slice(0, -1);
-
-        }
+        undo(currentInput);
     }
 
     if (containClass(targetButton, "number-button") || containClass(targetButton, "decimal-button")) {
@@ -96,18 +121,14 @@ container.addEventListener("click", event => {
             }
             a += targetButton.dataset.number;
             displayValue = displayResult("a");
-            if (a.includes(".")) {
-                decimalButton.disabled = true;
-            }
+            toggleDecimalButton(a);
         } else {
             if (containClass(targetButton, "decimal-button") && b === "") {
                 b = "0";
             }
             b += targetButton.dataset.number;
             displayValue = displayResult("b");
-            if (b.includes(".")) {
-                decimalButton.disabled = true;
-            }
+            toggleDecimalButton(b);
         }
     }
     
@@ -172,7 +193,7 @@ container.addEventListener("click", event => {
     }
     displayContent.innerText = displayValue;
     console.log(a);
-    console.log(operator);
-    console.log(b);
-    console.log(displayValue);
+    // console.log(operator);
+    // console.log(b);
+    // console.log(displayValue);
 })
