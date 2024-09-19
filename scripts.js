@@ -85,6 +85,99 @@ const undo = (inputContext) => {
     }
 }
 
+const handleInputs = (input) => {
+    if (containClass(input, "clear-button")) {
+        cleanUpValues();
+    }
+
+    if (containClass(input, "backspace-button")) {
+        undo(currentInput);
+    }
+
+    if (containClass(input, "number-button") || containClass(input, "decimal-button")) {
+        if (currentInput === "b" && isResult) {
+            cleanUpValues();
+            currentInput = "a";
+        }
+
+        if (currentInput === "a") {
+            if (containClass(input, "decimal-button") && a === "") {
+                a = "0";
+            }
+            a += input.dataset.action;
+            displayValue = displayResult("a");
+            toggleDecimalButton(a);
+        } else {
+            if (containClass(input, "decimal-button") && b === "") {
+                b = "0";
+            }
+            b += input.dataset.action;
+            displayValue = displayResult("b");
+            toggleDecimalButton(b);
+        }
+    }
+    
+    if (containClass(input, "arithmetic-button")) {
+        // unlock the decimal button at first
+        decimalButton.disabled = false;
+
+
+        if (currentInput === "a") {
+            // handle positive sign or negative sign for number a
+            if (!isResult && (a === "" || a === "-")) {
+                if (input.dataset.action === "+") {
+                    a = "";
+                }
+                if (input.dataset.action === "-") {
+                    a = "-";
+                }
+                displayValue = displayResult("a");
+            } else {
+                currentInput = "b";
+            }
+        }
+
+        // Pressing arithmetic button right after a calculation
+        if (currentInput === "b" && b !== '') {
+            a = operate(a, operator, b);
+            b = "";
+            isResult = false;
+        }
+
+        // the operator is only valid after a valid number a
+        if (a !== '' && a !== '-') {
+            operator = input.dataset.action;
+            displayedOperator = input.innerText;        
+            displayValue = displayResult("b");
+        }
+    }
+
+    if (containClass(input, "operate-button")) {
+        // unlock the decimal button at first
+        decimalButton.disabled = false;
+
+        // handle no operator and no b
+        if (operator === "" && b === "") {
+            result = a;
+        } else {
+            // handle no b only, always repeat the calculation using the initial value of a
+            if (b === "") {
+                b = a;
+                }
+            // instant calculation for multiple clicks
+            if (isResult) {
+                a = result;
+            } else {
+                // the state of current displaying value should be the result only
+                isResult = true;
+            } 
+            result = operate(a, operator, b);
+        }
+        displayValue = result;
+    }
+    displayContent.innerText = displayValue;
+}
+
 let a = '';
 let operator = '';
 let b = '';
@@ -96,10 +189,29 @@ let isResult = false;
 
 let container = document.querySelector(".container"); 
 let displayContent = document.querySelector(".displayContent");
+let buttons = document.querySelectorAll(".button");
 let decimalButton = document.querySelector(".decimal-button");
+
+
+
+document.addEventListener("keydown", event => {
+    const keyName = event.key;
+    console.log(keyName);
+    buttons.forEach(button => {
+        let matchNumberButton = keyName === button.dataset.action;
+        let matchArithmeticButton = keyName === button.dataset.action;
+        let matchOperateButton = button.className.includes("operate-button") && (keyName === "=" || keyName === "Enter");
+        let matchClearButton = button.className.includes("clear-button") && (keyName === "Escape" || keyName === "Delete");
+        let matchBackspaceButton = button.className.includes("backspace-button") && (keyName === "Backspace");
+        if (matchOperateButton || matchNumberButton || matchArithmeticButton || matchClearButton || matchBackspaceButton) {
+            button.click();
+        }
+    })
+})
 
 container.addEventListener("click", event => {
     let targetButton = event.target
+    console.log(targetButton);
     
     if (containClass(targetButton, "clear-button")) {
         cleanUpValues();
@@ -119,14 +231,14 @@ container.addEventListener("click", event => {
             if (containClass(targetButton, "decimal-button") && a === "") {
                 a = "0";
             }
-            a += targetButton.dataset.number;
+            a += targetButton.dataset.action;
             displayValue = displayResult("a");
             toggleDecimalButton(a);
         } else {
             if (containClass(targetButton, "decimal-button") && b === "") {
                 b = "0";
             }
-            b += targetButton.dataset.number;
+            b += targetButton.dataset.action;
             displayValue = displayResult("b");
             toggleDecimalButton(b);
         }
@@ -141,10 +253,10 @@ container.addEventListener("click", event => {
         if (currentInput === "a") {
             // handle positive sign or negative sign for number a
             if (!isResult && (a === "" || a === "-")) {
-                if (targetButton.dataset.arithmetic === "+") {
+                if (targetButton.dataset.action === "+") {
                     a = "";
                 }
-                if (targetButton.dataset.arithmetic === "-") {
+                if (targetButton.dataset.action === "-") {
                     a = "-";
                 }
                 displayValue = displayResult("a");
@@ -162,7 +274,7 @@ container.addEventListener("click", event => {
 
         // the operator is only valid after a valid number a
         if (a !== '' && a !== '-') {
-            operator = targetButton.dataset.arithmetic;
+            operator = targetButton.dataset.action;
             displayedOperator = targetButton.innerText;        
             displayValue = displayResult("b");
         }
