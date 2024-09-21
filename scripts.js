@@ -1,4 +1,7 @@
-const add = (a, b) => a + b;
+// const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+// const operators = ["+", "-", "*", "/"];
+
+const add = (a, b) => a + b;    
 const subtract = (a, b) => a - b;
 const multiply = (a, b) => a * b;
 const divide = (a, b) => a / b;
@@ -29,8 +32,7 @@ const operate = (a, operator, b) => {
             calculatedResult = divide(a, b);
             break;
     }
-
-    return Math.round(calculatedResult * 1000) / 1000;
+    return (Math.round(calculatedResult * 1000) / 1000).toString();
 };
 
 const containClass = (targetButton, className) => {
@@ -58,124 +60,33 @@ const displayResult = (inputContext) => {
 }
 
 const toggleDecimalButton = (str) => {
-    if (str.includes(".")) {
-        decimalButton.disabled = true;
-    } else {
-        decimalButton.disabled = false;
-    }
+        if (str.includes(".")) {
+            decimalButton.disabled = true;
+        } else {
+            decimalButton.disabled = false;
+        }
 }
 
 const undo = (inputContext) => {
-    if (inputContext === "a") {
-        a = a.slice(0, -1);
-        displayValue = displayResult("a");
-        toggleDecimalButton(a);
-    }
-    if (inputContext === "b") {
-        if (b == "") {
-            operator = "";
-            currentInput = "a";
+    if (!isResult) {
+        if (inputContext === "a") {
+            a = a.slice(0, -1);
             displayValue = displayResult("a");
             toggleDecimalButton(a);
-        } else {
-            b = b.slice(0, -1);
-            displayValue = displayResult("b");
-            toggleDecimalButton(b);
         }
-    }
-}
-
-const handleInputs = (input) => {
-    if (containClass(input, "clear-button")) {
-        cleanUpValues();
-    }
-
-    if (containClass(input, "backspace-button")) {
-        undo(currentInput);
-    }
-
-    if (containClass(input, "number-button") || containClass(input, "decimal-button")) {
-        if (currentInput === "b" && isResult) {
-            cleanUpValues();
-            currentInput = "a";
-        }
-
-        if (currentInput === "a") {
-            if (containClass(input, "decimal-button") && a === "") {
-                a = "0";
-            }
-            a += input.dataset.action;
-            displayValue = displayResult("a");
-            toggleDecimalButton(a);
-        } else {
-            if (containClass(input, "decimal-button") && b === "") {
-                b = "0";
-            }
-            b += input.dataset.action;
-            displayValue = displayResult("b");
-            toggleDecimalButton(b);
-        }
-    }
-    
-    if (containClass(input, "arithmetic-button")) {
-        // unlock the decimal button at first
-        decimalButton.disabled = false;
-
-
-        if (currentInput === "a") {
-            // handle positive sign or negative sign for number a
-            if (!isResult && (a === "" || a === "-")) {
-                if (input.dataset.action === "+") {
-                    a = "";
-                }
-                if (input.dataset.action === "-") {
-                    a = "-";
-                }
+        if (inputContext === "b") {
+            if (b == "") {
+                operator = "";
+                currentInput = "a";
                 displayValue = displayResult("a");
+                toggleDecimalButton(a);
             } else {
-                currentInput = "b";
+                b = b.slice(0, -1);
+                displayValue = displayResult("b");
+                toggleDecimalButton(b);
             }
         }
-
-        // Pressing arithmetic button right after a calculation
-        if (currentInput === "b" && b !== '') {
-            a = operate(a, operator, b);
-            b = "";
-            isResult = false;
-        }
-
-        // the operator is only valid after a valid number a
-        if (a !== '' && a !== '-') {
-            operator = input.dataset.action;
-            displayedOperator = input.innerText;        
-            displayValue = displayResult("b");
-        }
     }
-
-    if (containClass(input, "operate-button")) {
-        // unlock the decimal button at first
-        decimalButton.disabled = false;
-
-        // handle no operator and no b
-        if (operator === "" && b === "") {
-            result = a;
-        } else {
-            // handle no b only, always repeat the calculation using the initial value of a
-            if (b === "") {
-                b = a;
-                }
-            // instant calculation for multiple clicks
-            if (isResult) {
-                a = result;
-            } else {
-                // the state of current displaying value should be the result only
-                isResult = true;
-            } 
-            result = operate(a, operator, b);
-        }
-        displayValue = result;
-    }
-    displayContent.innerText = displayValue;
 }
 
 let a = '';
@@ -192,11 +103,9 @@ let displayContent = document.querySelector(".displayContent");
 let buttons = document.querySelectorAll(".button");
 let decimalButton = document.querySelector(".decimal-button");
 
-
-
+// Keyboard support
 document.addEventListener("keydown", event => {
     const keyName = event.key;
-    console.log(keyName);
     buttons.forEach(button => {
         let matchNumberButton = keyName === button.dataset.action;
         let matchArithmeticButton = keyName === button.dataset.action;
@@ -211,7 +120,6 @@ document.addEventListener("keydown", event => {
 
 container.addEventListener("click", event => {
     let targetButton = event.target
-    console.log(targetButton);
     
     if (containClass(targetButton, "clear-button")) {
         cleanUpValues();
@@ -248,7 +156,6 @@ container.addEventListener("click", event => {
     if (containClass(targetButton, "arithmetic-button")) {
         // unlock the decimal button at first
         decimalButton.disabled = false;
-
 
         if (currentInput === "a") {
             // handle positive sign or negative sign for number a
@@ -304,8 +211,4 @@ container.addEventListener("click", event => {
         displayValue = result;
     }
     displayContent.innerText = displayValue;
-    console.log(a);
-    // console.log(operator);
-    // console.log(b);
-    // console.log(displayValue);
 })
